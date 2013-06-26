@@ -18,4 +18,5 @@ alias qmon='qmon -nologo'
 alias qstat='better_qstat'
 alias tcsh='unset LS_COLORS; tcsh'
 alias vmd='unset LS_COLORS; vmd -m -nt'
+alias shotwell='shotwell --no-runtime-monitoring'
 

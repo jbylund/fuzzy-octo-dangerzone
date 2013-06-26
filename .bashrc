@@ -143,6 +143,7 @@ export SCHRODINGER=/opt/schrodinger
 export SCHRODINGER_RSH=ssh
 export SCHRODINGER="/usr/local/software/schrodinger2011_64/"
 
+
 FULLHOST=`hostname --fqdn 2>/dev/null || hostname`
 USER=`whoami`
 HOSTHASH=`echo "${USER}${FULLHOST}"| md5sum -|awk '{print "1"$1}'|tr -d '[a-z]'` # removes all letters 
@@ -153,6 +154,7 @@ export HOSTHASH
 ####################################################################################################################################
 #########    Set Up The Prompt  ####################################################################################################
 ####################################################################################################################################
+
 
 export OFFSET=0
 if [[ $OLD_HOST ]]; then
@@ -279,3 +281,4 @@ fi
 #alias tcsh="unset LS_COLORS; tcsh"
 #alias vmd="unset LS_COLORS; vmd -m -nt"
 
+export PKG_CONFIG_DIR=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
