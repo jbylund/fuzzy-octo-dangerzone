@@ -3,6 +3,9 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+# make the file for history files
+mkdir -p ~/.history
+
 # patch up ssh by picking up environment variables that were passed in
 if [ -n "${LC_TIME_OLD_HOST+x}" ] # if time old host is set
 then
@@ -215,12 +218,11 @@ function plop()
 
 PROMPT_COMMAND='echo
 echo
-thiscommand=`fc -ln -1|perl -pe "s/^\s+//"`
-if [[ "$lastcommand" != "$thiscommand" && "$thiscommand" != "" ]]; then
-	lastcommand="$thiscommand"
-	echo '' >> ~/my_history
-	echo "$thiscommand" >> ~/my_history
-	pwd >> ~/my_history
+thiscommand=`fc -ln -1 | perl -pe "s/^\s+//"`
+if [[ "$thiscommand" != "" ]]; then
+	pwd > ~/.tmp_command
+	echo "$thiscommand" >> ~/.tmp_command
+    mv ~/.tmp_command ~/.history/`md5sum ~/.tmp_command | cut -c 1-32`
 fi
 
 echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"
@@ -232,53 +234,5 @@ if [ -x /usr/bin/dircolors ]; then
     eval "`dircolors -b`"
     export LS_COLORS="${LS_COLORS}*.lrz=01;31:*.nef=01;37:" # add coloring for lrz, do I need to add for .nef as well?
 fi
-
-####################################################################################################################################
-#########   Reference, All Comments  ###############################################################################################
-####################################################################################################################################
-
-#export PATH="~/scripts:~/bin:$PATH"  add my stuff to path, scripts before bin
-#/home/friesner/fumento/intel_fc_80/bin/ifort
-#/home/friesner/goldfeld/opt/intel/Compiler/11.1/064/bin/intel64/ifort
-#/home/friesner/jhb2147/bin/ifort
-#/home/friesner/jhb2147/intel/fce/10.0.026/bin/ifort
-#/home/friesner/jz2300/local/intel/Compiler/11.1/072/bin/ia32/ifort
-#/home/friesner/jz2300/local/intel/Compiler/11.1/072/bin/intel64/ifort
-#/home/friesner/lc2384/PINY1/work_ROBIN/compile/pentium_mkl/ifort
-#/home/friesner/lc2384/unknown/PINY1/work_ROBIN/compile/pentium_mkl/ifort
-#/home/friesner/mk2979/files/reqpackages/intel/ifort
-#/usr/local/intel-art/bin/intel64/ifort
-#/usr/local/Intel/bin/ifort
-#/usr/local/intel-cprof-11.0/bin/ifort
-#/usr/local/intel-cprof-11.0/bin/intel64/ifort
-#/usr/local/Intel/intel_fc_80old/bin/ifort
-#/usr/local/Intel_v6/fc/9.0/bin/ifort
-#/usr/local/mpich/ifort
-
-# foct29 intel compilers
-#if [[ $HOSTNAME == foct29 ]]; then  overide my intel with newer intel
-#	export PATH="/opt/intel/Compiler/11.1/056/bin/intel64:$PATH"
-#   source /opt/intel/Compiler/11.1/056/bin/ifortvars.sh intel64
-#fi
-
-#####################################################################################################################################
-##########    Set Up Aliases     ####################################################################################################
-#####################################################################################################################################
-#enable -n kill # allows overriding of the kill bash builtin
-#unalias -a # clear all aliases
-
-#alias cat='cat -v'
-#alias clusterkill="\qstat|grep $USER|awk '{print \$1}'|xargs -r qdel"
-#alias diff="sdiff -s -w 126"
-#alias fix_display='xrandr --size 1'
-#alias gedit="gedit --new-window"
-#alias grep="grep -a --color=auto"
-#alias ls='ls -F --color=auto --ignore-backups'
-#alias maestro="/home/jhb2147/schrodinger08/maestro"
-#alias man='man -P cat'
-#alias qmon="qmon -nologo"
-#alias qstat="better_qstat"
-#alias tcsh="unset LS_COLORS; tcsh"
-#alias vmd="unset LS_COLORS; vmd -m -nt"
 
 export PKG_CONFIG_DIR=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
