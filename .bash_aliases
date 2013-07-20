@@ -20,3 +20,5 @@ alias tcsh='unset LS_COLORS; tcsh'
 alias vmd='unset LS_COLORS; vmd -m -nt'
 alias shotwell='shotwell --no-runtime-monitoring'
 
+# disable the bash builtin history for my own
+enable -n history
