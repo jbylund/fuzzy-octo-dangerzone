@@ -235,4 +235,6 @@ if [ -x /usr/bin/dircolors ]; then
     export LS_COLORS="${LS_COLORS}*.lrz=01;31:*.nef=01;37:" # add coloring for lrz, do I need to add for .nef as well?
 fi
 
-export PKG_CONFIG_DIR=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
+export PKG_CONFIG_DIR=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig
+
+
