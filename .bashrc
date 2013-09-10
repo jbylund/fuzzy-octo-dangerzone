@@ -101,9 +101,10 @@ export PATH
 ####################################################################################################################################
 export COMPILER=gfortran-static
 export CVS_RSH=ssh
-export RSYNC_RSH=ssh
-export MAGICK_THREAD_LIMIT=1
 export EDITOR=gedit
+export MAGICK_THREAD_LIMIT=1
+export NO_AT_BRIDGE=1
+export RSYNC_RSH=ssh
 export SIMPLE_BACKUP_SUFFIX=''
 export VERSION_CONTROL=numbered
 #export GLOBIGNORE=".:..:*~:CVS" # set up to ignore ".","..",".*", and "*~"  :.*

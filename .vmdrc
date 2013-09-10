@@ -9,4 +9,5 @@ menu graphics move 5 455
 menu files move 5 496
 menu mol move 5 745
 menu main on
-
+color Display Background white 
+axes location off
