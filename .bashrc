@@ -40,6 +40,7 @@ export HISTFILESIZE=10000
 export HISTSIZE=10000
 shopt -s checkwinsize # check the window size after each command and, if necessary, update the values of LINES and COLUMNS.
 shopt -s histappend # append to the history file, don't overwrite it
+shopt -s huponexit # make ssh exit
 
 
 # allows you to less gzipped files
