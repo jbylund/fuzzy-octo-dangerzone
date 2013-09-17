@@ -186,15 +186,16 @@ fi
 # and md5sum of ~/.ssh/known_hosts matches on old and new machine
 function ssh()
 {
-  export LC_PWD="$PWD"
-  export LC_OLDPWD="$OLDPWD"
-	export LC_MD5HST=`md5sum ~/.ssh/known_hosts|cut --delimiter=' ' -f 1`
-	export LC_TIME_OLD_HOST=`date --date="now + $OFFSET seconds" +"%s"`
-	`which ssh` -q -F ~/.ssh/config $* # connect to the specified machine
-  unset LC_PWD
-  unset LC_OLDPWD
-  unset LC_TIME_OLD_HOST
-	unset LC_MD5HST
+    export LC_PWD="$PWD"
+    export LC_OLDPWD="$OLDPWD"
+    export LC_MD5HST=`md5sum ~/.ssh/known_hosts|cut --delimiter=' ' -f 1`
+    export LC_TIME_OLD_HOST=`date --date="now + $OFFSET seconds" +"%s"`
+    touch ~/.ssh/config
+    `which ssh` -q -F ~/.ssh/config $* # connect to the specified machine
+    unset LC_PWD
+    unset LC_OLDPWD
+    unset LC_TIME_OLD_HOST
+    unset LC_MD5HST
 }
 
 #function ssh()
