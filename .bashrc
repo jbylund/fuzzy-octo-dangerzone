@@ -62,26 +62,10 @@ fi
 ####################################################################################################################################
 
 PATH="/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin:/usr/games" # basic stuff/fallbacks
-
-if [[ `arch` == i686 && `/home/friesner/jhb2147/bin32/bin/ls 2>/dev/null` ]]; then
-	PATH="/home/friesner/jhb2147/bin32/bin:$PATH"
-	export AUTOSSH_PATH=/home/friesner/jhb2147/bin32/bin/ssh
-elif [[ `arch` == x86_64 && `/home/friesner/jhb2147/bin64/bin/ls 2>/dev/null` ]]; then
-	PATH="/home/friesner/jhb2147/bin64/bin:$PATH"
-	export LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib32:$LD_LIBRARY_PATH"
-  # /home/friesner/jz2300/local/intel/Compiler/11.1/072/mkl/lib/em64t:/home/friesner/jz2300/local/intel/Compiler/11.1/072/lib/intel64:
-fi
+PATH="$HOME/common/registry:$PATH"
 
 if [ -d "/opt/bin" ]; then
 	PATH="/opt/bin:$PATH"
-fi
-
-if [[ -d "/usr/local/software/schrodinger2011_64/utilities" ]]; then
-	PATH="/usr/local/software/schrodinger2011_64/utilities:$PATH" # add schrodinger stuff to path
-fi
-
-if [[ $HOSTNAME != surmgt1 && -f /export/sge6.2_U7/ChemQ/common/settings.sh ]]; then
-	source /export/sge6.2_U7/ChemQ/common/settings.sh
 fi
 
 # set PATH so it includes user's private bin if it exists
@@ -90,10 +74,8 @@ if [[ -d "$HOME/bin" ]] ; then
 fi
 
 if [[ -d "$HOME/scripts" ]] ; then
-	PATH="$HOME/scripts/im_scripts:$HOME/scripts:$PATH"
+	PATH="$HOME/scripts:$PATH"
 fi
-
-#source /opt/intel/bin/compilervars.sh intel64 2>/dev/null
 
 export PATH
 
@@ -111,7 +93,6 @@ export VERSION_CONTROL=numbered
 #export GLOBIGNORE=".:..:*~:CVS" # set up to ignore ".","..",".*", and "*~"  :.*
 export IGNOREEOF=0
 #export MANPATH=/usr/share/man
-export PLOP_COMPILER_FLAGS="-O2 -ffast-math -fexternal-blas -funroll-loops"
 
 export SHOTWELL_CRITICAL=1
 export SHOTWELL_DEBUG=1
@@ -124,30 +105,15 @@ export TRASH="$HOME/.local/share/Trash/files/"
 WHEREAMI=`hostname --fqdn 2>/dev/null`
 export WHEREAMI="$WHEREAMI`hostname --alias 2>/dev/null|awk '{print $1}'`"
 
-export LD_LIBRARY_PATH='/home/friesner/jhb2147/bin64/lib64:/usr/local/lib:/opt/namd:/usr/local/lib/gegl-0.2'
 if [[ `ls -d /usr/lib/thunderbird-* 2>/dev/null` ]]; then
 	export LD_LIBRARY_PATH="`ls -d /usr/lib/thunderbir* 2>/dev/null|\grep -v addons|head -n 1`:$LD_LIBRARY_PATH" # add thunderbird to ld_library_path
 fi
 
-#if [[ -d "/opt/intel/composer_xe_2011_sp1.6.233/mkl/lib/intel64" ]]; then
-#  export LD_LIBRARY_PATH="/opt/intel/composer_xe_2011_sp1.6.233/mkl/lib/intel64/:$LD_LIBRARY_PATH"
-#fi
-
-export LM_LICENSE_FILE="@aqfctl.chem.columbia.edu"
-export LM_LICENSE_FILE="@aqfctl" # should I have quotes or no?
 export MPI_P4SSPORT=4356
 export MPI_USEP4SSPORT=yes
 export OMP_NUM_THREADS=`grep -c "processor" /proc/cpuinfo`
 export P4_RSHCOMMAND=ssh
 export RSHCOMMAND=ssh
-export SCHRODINGER="/home/friesner/cao/schrodinger/"
-export SCHRODINGER_MPI_DEBUG=yes
-export SCHRODINGER_MPI_FLAGS="-v --mca btl tcp.self"
-export SCHRODINGER_MPI_START=yes
-export SCHRODINGER=/opt/schrodinger
-export SCHRODINGER_RSH=ssh
-export SCHRODINGER="/usr/local/software/schrodinger2011_64/"
-
 
 FULLHOST=`hostname --fqdn 2>/dev/null || hostname`
 USER=`whoami`
@@ -192,10 +158,17 @@ function ssh()
     export LC_TIME_OLD_HOST=`date --date="now + $OFFSET seconds" +"%s"`
     touch ~/.ssh/config
     `which ssh` -q -F ~/.ssh/config $* # connect to the specified machine
+    exitval=$?
     unset LC_PWD
     unset LC_OLDPWD
     unset LC_TIME_OLD_HOST
     unset LC_MD5HST
+    if [ 0 -eq $exitval ]
+    then
+      true
+    else
+      false
+    fi
 }
 
 #function ssh()
@@ -208,13 +181,6 @@ function ssh()
 #}
 
 PS1='\[\033[1;${COLORCODE}m\]\u `date +%T --date="now + $OFFSET seconds"` @ \h \w>\[\033[0m\] ' # set the prompt, ssh directly to caerphilly
-
-function plop()
-{
-	MOST_RECENT_PLOP=`\ls -t ~/plop/executables/plop-gfortran-static-*|head -n 1`
-	echo "Running plop $MOST_RECENT_PLOP"
-	$MOST_RECENT_PLOP $*
-}
 
 # to append
 # gzip -c file2 >> foo.gz
@@ -239,5 +205,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 export PKG_CONFIG_DIR=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig
-
-
+#export PYTHONPATH=`find $HOME -type d -exec test -f {}/__init__.py \; -printf "%H/%P:" -prune | head -c -1`
+export PYTHONPATH=/home/joseph/Desktop/adage/readability-score/readability_score:/home/joseph/Desktop/adage/readability-score/build/lib.linux-x86_64-2.7/readability_score:/home/joseph/v2.5:/home/joseph/common/registry
+source ~/.moatenv
+export LIBOVERLAY_SCROLLBAR=0
