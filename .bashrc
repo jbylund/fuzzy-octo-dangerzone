@@ -6,7 +6,7 @@
 # make the file for history files
 mkdir -p ~/.history
 
-eval `ssh-agent -s`
+eval `ssh-agent -s | head -n 2`
 for i in `ls ~/.ssh/*.pem ~/.ssh/id_rsa`
 do
   ssh-add $i > /dev/null 2>/dev/null
