@@ -6,6 +6,12 @@
 # make the file for history files
 mkdir -p ~/.history
 
+eval `ssh-agent -s`
+for i in `ls ~/.ssh/*.pem ~/.ssh/id_rsa`
+do
+  ssh-add $i > /dev/null 2>/dev/null
+done
+
 # patch up ssh by picking up environment variables that were passed in
 if [ -n "${LC_TIME_OLD_HOST+x}" ] # if time old host is set
 then
