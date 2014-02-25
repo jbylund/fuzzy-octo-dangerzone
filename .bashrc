@@ -6,8 +6,9 @@
 # make the file for history files
 mkdir -p ~/.history
 
-if [ $(top -b -n 1 | \grep -i ssh-agent | \grep -v grep | wc -l) -eq 0 ]
+if [ $(top -b -n 1 | \grep -i ssh-agent | \grep -v grep | wc -l) -ne 1 ]
 then
+  killall --quiet ssh-agent
   eval `ssh-agent -s | head -n 2`
 fi
 
@@ -131,12 +132,9 @@ HOSTHASH=`echo "${USER}${FULLHOST}"| md5sum -|awk '{print "1"$1}'|tr -d '[a-z]'`
 let HOSTHASH=$HOSTHASH%100000000+4
 export HOSTHASH
 
-
 ####################################################################################################################################
 #########    Set Up The Prompt  ####################################################################################################
 ####################################################################################################################################
-
-
 export OFFSET=0
 if [[ $OLD_HOST ]]; then
 	NEW_DATE=`date +"%s"` # store the current date in new_date
@@ -158,55 +156,9 @@ else
   fi
 fi
 
-# attempt to maintain directory if inside home directory
-# and md5sum of ~/.ssh/known_hosts matches on old and new machine
-function ssh()
-{
-    export LC_PWD="$PWD"
-    export LC_OLDPWD="$OLDPWD"
-    export LC_MD5HST=`md5sum ~/.ssh/known_hosts|cut --delimiter=' ' -f 1`
-    export LC_TIME_OLD_HOST=`date --date="now + $OFFSET seconds" +"%s"`
-    touch ~/.ssh/config
-    `which ssh` -q -F ~/.ssh/config $* # connect to the specified machine
-    exitval=$?
-    unset LC_PWD
-    unset LC_OLDPWD
-    unset LC_TIME_OLD_HOST
-    unset LC_MD5HST
-    if [ 0 -eq $exitval ]
-    then
-      true
-    else
-      false
-    fi
-}
-
-#function ssh()
-#{
-#	echo "cd $PWD" > ~/.ccwd
-#	`which ssh` $* "echo `date --date="now + $OFFSET seconds" +"%s"` > ~/.timeoldhost" 2> /dev/null # write the date in seconds from the current machine to .timeoldhost on the new machine
-#	`which ssh` -F ~/.ssh/config $* # connect to the specified machine
-#	# actual changing of directory happens in .bash_login
-#	source ~/.ccwd # on getting back to this machine go back to the directory I was in
-#}
-
 PS1='\[\033[1;${COLORCODE}m\]\u `date +%T --date="now + $OFFSET seconds"` @ \h \w>\[\033[0m\] ' # set the prompt, ssh directly to caerphilly
 
-# to append
-# gzip -c file2 >> foo.gz
-
-PROMPT_COMMAND='echo
-echo
-thiscommand=`fc -ln -1 | perl -pe "s/^\s+//"`
-if [[ "$thiscommand" != "" ]]; then
-	pwd > ~/.tmp_command
-	echo "$thiscommand" >> ~/.tmp_command
-    mv ~/.tmp_command ~/.history/`md5sum ~/.tmp_command | cut -c 1-32`
-fi
-
-echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"
-' # set the window title and touch the date file
-
+PROMPT_COMMAND=${HOME}/scripts/prompt_command
 
 # enable color support of ls
 if [ -x /usr/bin/dircolors ]; then
@@ -215,7 +167,9 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 export PKG_CONFIG_DIR=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig
-#export PYTHONPATH=`find $HOME -type d -exec test -f {}/__init__.py \; -printf "%H/%P:" -prune | head -c -1`
-export PYTHONPATH=/home/joseph/Desktop/adage/readability-score/readability_score:/home/joseph/Desktop/adage/readability-score/build/lib.linux-x86_64-2.7/readability_score:/home/joseph/v2.5:/home/joseph/common/registry
-source ~/.moatenv
+export PYTHONPATH=/home/joseph/
 export LIBOVERLAY_SCROLLBAR=0
+if [ -x ~/common/registry/glom.sh ]
+then
+  eval $( echo 3 | ~/common/registry/glom.sh | \grep export | tail -c +18 | sort )
+fi
