@@ -1,0 +1,31 @@
+#!/bin/bash
+thiscommand=$(fc -ln | tail -n 1 | cut -c 3-10000)
+# make the history file
+
+for i in 1
+do
+  if [ $(echo -n "$thiscommand"|wc -c) -eq 0 ]
+  then
+    break
+  fi
+  # get some spaces
+  echo
+  echo
+  word=$(echo $thiscommand | cut -f 1 -d" ")
+  case $word in
+    'ls'|'cd') # do not log these
+      break
+      ;;
+    *) # log these
+      # echo "logging"
+      ;;
+  esac
+  pwd > ~/.tmp_command
+  echo "$thiscommand" >> ~/.tmp_command
+  md5=$(md5sum ~/.tmp_command | cut -c 1-32)
+  mv ~/.tmp_command ~/.history/${md5}
+done
+
+# set the window title and pwd
+echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"
+echo -ne $"\e]7;file://$(pwd)\a"
