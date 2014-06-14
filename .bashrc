@@ -158,7 +158,7 @@ fi
 
 PS1='\[\033[1;${COLORCODE}m\]\u `date +%T --date="now + $OFFSET seconds"` @ \h \w>\[\033[0m\] ' # set the prompt, ssh directly to caerphilly
 
-PROMPT_COMMAND=${HOME}/scripts/prompt_command
+PROMPT_COMMAND=$(cat ${HOME}/scripts/prompt_command)
 
 # enable color support of ls
 if [ -x /usr/bin/dircolors ]; then
@@ -167,9 +167,12 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 export PKG_CONFIG_DIR=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig
-export PYTHONPATH=/home/joseph/
+export PYTHONPATH=/home/jbylund/
 export LIBOVERLAY_SCROLLBAR=0
-if [ -x ~/common/registry/glom.sh ]
+if [ -e ~/.moat_env_vars ]
+then
+  . ~/.moat_env_vars
+elif [ -x ~/common/registry/glom.sh ]
 then
   eval $( echo 3 | ~/common/registry/glom.sh | \grep export | tail -c +18 | sort )
 fi
