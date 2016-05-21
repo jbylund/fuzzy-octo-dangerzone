@@ -41,6 +41,8 @@ def get_s3_file(bucket=None, key=None, local_path=None, method="boto"):
         mkdir_p(local_dir)
     conn = boto3.client('s3')
     if method == "boto":
+        # TODO: this method hasn't been tested at all, and is
+        # probably broken since I never moved it from boto to boto3
         bbucket = conn.get_bucket(bucket, validate=False)
         bkey = bbucket.get_key(key)
         with open(local_path, 'w') as local_log:
@@ -120,28 +122,28 @@ class S3Key(object):
             bucket, key = match.groups()
         self.key = key
         self.bucket = bucket
-        self.fh = tempfile.NamedTemporaryFile(delete=False, mode=mode)
-        self.fh.close()
+        self.filehandle = tempfile.NamedTemporaryFile(delete=False, mode=mode)
+        self.filehandle.close()
         if "w" in mode:
             pass # don't need to download the file
         else:
             if key_exists(bucket=bucket, key=key):
-                get_s3_file(bucket=bucket, key=key, local_path=self.fh.name, method='axel')
-        self.fh = open(self.fh.name, mode=mode)
+                get_s3_file(bucket=bucket, key=key, local_path=self.filehandle.name, method='axel')
+        self.filehandle = open(self.filehandle.name, mode=mode)
 
     def __enter__(self):
-        return self.fh
+        return self.filehandle
 
     def __exit__(self, error_type, error_val, error_traceback):
-        self.fh.close()
-        self.fh = open(self.fh.name)
+        self.filehandle.close()
+        self.filehandle = open(self.filehandle.name)
         self.conn.put_object(
-            Body=self.fh,
+            Body=self.filehandle,
             Bucket=self.bucket,
             Key=self.key
         )
-        self.fh.close()
-        os.remove(self.fh.name)
+        self.filehandle.close()
+        os.remove(self.filehandle.name)
 
 def test():
     """test the behavior of an s3key object"""
