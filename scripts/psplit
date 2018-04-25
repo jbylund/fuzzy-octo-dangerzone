@@ -6,8 +6,6 @@ set -u
 INFILE=$1
 NSHARDS=${2:-16}
 
-echo $INFILE > /dev/stderr
-
 SUFFIX="${INFILE##*.}"
 
 case $SUFFIX in 
