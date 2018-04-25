@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Partition a large compressed file (csv) into N shards, preserving header and recompressing inline
+#
+INFILE=$1
+NSHARDS=${2:-16}
+
+SUFFIX="${INFILE##*.}"
+
+case $SUFFIX in 
+    gz)
+        DECOMPRESSOR=pigz
+        COMPRESSOR=gzip
+        ;;
+    xz)
+        DECOMPRESSOR=pxz
+        COMPRESSOR=xz
+        ;;
+    lzo)
+        DECOMPRESSOR=lzop
+        COMPRESSOR=lzop
+        ;;
+    zst)
+        DECOMPRESSOR=zstd
+        COMPRESSOR=zstd
+        ;;
+esac
+
+HEADERFILE=$(mktemp)
+$DECOMPRESSOR --decompress --stdout $INFILE |
+head -n 1 > $HEADERFILE
+
+$DECOMPRESSOR --decompress --stdout $INFILE |
+tail -n +2 |
+split --number r/$NSHARDS --additional-suffix=.$SUFFIX --filter="cat $HEADERFILE - | $COMPRESSOR > \$FILE" - shard_
+
+/bin/rm $HEADERFILE
