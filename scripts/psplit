@@ -2,8 +2,11 @@
 #
 # Partition a large compressed file (csv) into N shards, preserving header and recompressing inline
 #
+set -u
 INFILE=$1
 NSHARDS=${2:-16}
+
+echo $INFILE > /dev/stderr
 
 SUFFIX="${INFILE##*.}"
 
@@ -27,7 +30,7 @@ case $SUFFIX in
 esac
 
 HEADERFILE=$(mktemp)
-$DECOMPRESSOR --decompress --stdout $INFILE |
+$DECOMPRESSOR --decompress --stdout $INFILE 2>/dev/null |
 head -n 1 > $HEADERFILE
 
 $DECOMPRESSOR --decompress --stdout $INFILE |
