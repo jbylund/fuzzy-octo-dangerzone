@@ -1,5 +1,0 @@
-diff -y --suppress-common-lines -w --width=165 -rHEAD
-update -dP
-cvs -z3
-checkout -P
-
