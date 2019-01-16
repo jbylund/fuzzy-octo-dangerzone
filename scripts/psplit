@@ -29,10 +29,10 @@ esac
 
 HEADERFILE=$(mktemp)
 $DECOMPRESSOR --decompress --stdout $INFILE 2>/dev/null |
-head -n 1 > $HEADERFILE
+  head -n 1 > $HEADERFILE
 
 $DECOMPRESSOR --decompress --stdout $INFILE |
-tail -n +2 |
-split --number r/$NSHARDS --additional-suffix=.$SUFFIX --filter="cat $HEADERFILE - | $COMPRESSOR > \$FILE" - shard_
+  tail -n +2 |
+  split --number r/$NSHARDS --additional-suffix=.$SUFFIX --filter="cat $HEADERFILE - | $COMPRESSOR > \$FILE" - shard_
 
 /bin/rm $HEADERFILE
