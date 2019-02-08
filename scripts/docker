@@ -23,11 +23,27 @@ function cmd_uses_format() {
     false
 }
 
-function cleanall() {
-    # remove any docker containers
+function clean_images() {
+    # remove in parallel (fast, but fails on conflicts)
     docker images |
         jq --raw-output .ID |
         xargs -n 1 --no-run-if-empty -P0 -- docker image rm --force
+    # remove in serial (safe, but slow)
+    docker images | 
+        jq --raw-output .ID | 
+        xargs -n 1 --no-run-if-empty -P1 -- docker image rm --force
+}
+
+function clean_containers() {
+    /usr/bin/docker container ls --all --format "{{json .}}" |
+        jq --raw-output .ID |
+        xargs --no-run-if-empty -n 1 -P0 docker container rm
+}
+
+function cleanall() {
+    /usr/bin/docker system prune --force > /dev/null
+    clean_images
+    clean_containers
 }
 
 function have_jq() {
@@ -52,10 +68,10 @@ for iline in sys.stdin:
     fi
 else
     case $1 in
-        stopall)
+        stopall|killall)
             stopall
             ;;
-        cleanall)
+        cleanall|rmall)
             cleanall
             ;;
         *)
