@@ -1,0 +1,85 @@
+#!/bin/bash
+
+toplevelcmds=$(
+    kubectl --help |
+        /bin/grep -E '^  ' |
+        head -n -1 |
+        cut -c 3- |
+        cut -f 1 -d" " |
+        sort -u
+)
+
+
+function get_resources() {
+    timeout 1.0 kubectl api-resources |
+        cut -f 1 -d" " |
+        tail -n +2
+}
+
+resources=""
+
+
+_kubectl()
+{
+    if [[ -z "$resources" ]]
+    then
+        resources=$(get_resources)
+    fi
+    currentword=${COMP_WORDS[COMP_CWORD]}
+    lastword=${COMP_WORDS[COMP_CWORD - 1]}
+    twoago=${COMP_WORDS[COMP_CWORD - 2]}
+    case ${COMP_CWORD} in
+      1) # autocomplete of kubernetes top level commands
+        COMPREPLY=( $(compgen -W "$toplevelcmds" -- $currentword ) )
+        ;;
+      2) # autocomplete of kubernetes second level commands
+        COMPREPLY=("FOO" "BAR" "BAZ")
+        echo "last=$lastword current=$currentword" >> /tmp/foo
+        case $lastword in
+          "get")
+            # completes to resources
+            COMPREPLY=( $(compgen -W "$resources" -- $currentword ) )
+            ;;
+          "delete")
+            # completes to resources
+            COMPREPLY=( $(compgen -W "$resources" -- $currentword ) )
+            ;;
+          "logs")
+            # options are actually the container names
+            pods=$( kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' )
+            COMPREPLY=( $(compgen -W "$pods" -- $currentword ) )
+            ;;
+          "config")
+            # options come from kubectl help config
+            configopts=$( kubectl help config |
+                grep -A 9999 Available |
+                grep -B 9999 Usage |
+                tail -n +2 |
+                head -n -2 |
+                cut -c 3- |
+                cut -f 1 -d" "
+            )
+            COMPREPLY=( $(compgen -W "$configopts" -- $currentword ) )
+            ;;
+          "exec")
+            ;;
+          *)
+            ;;
+        esac
+        ;;
+      3)
+        case $twoago in
+          "logs")
+            pod=$lastword
+            containers=$( kubectl get pods $pod --output=json | jq --raw-output '.spec.containers[] | .name' | sort -u )
+            COMPREPLY=( $( compgen -W "$containers" -- $currentword ) )
+            ;;
+          *)
+            ;;
+        esac
+        ;;
+      *)
+        ;;
+    esac
+}
+complete -F _kubectl kubectl

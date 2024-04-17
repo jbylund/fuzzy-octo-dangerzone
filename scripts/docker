@@ -1,0 +1,81 @@
+#!/bin/bash
+
+function cmd_supports_json() {
+    /usr/bin/docker $@ --help | grep -- '--format' > /dev/null
+}
+
+function stopall() {
+    # stop all running docker containers
+    docker ps |
+        jq --raw-output .ID |
+        xargs -n 1 --no-run-if-empty -P0 docker stop
+}
+
+function cmd_uses_format() {
+    for iarg in $@
+    do
+        if echo $iarg | grep -F -q -- '--format'
+        then
+            true
+            return
+        fi
+    done
+    false
+}
+
+function clean_images() {
+    # remove in parallel (fast, but fails on conflicts)
+    docker images |
+        jq --raw-output .ID |
+        xargs -n 1 --no-run-if-empty -P0 -- docker image rm --force
+    # remove in serial (safe, but slow)
+    docker images | 
+        jq --raw-output .ID | 
+        xargs -n 1 --no-run-if-empty -P1 -- docker image rm --force
+}
+
+function clean_containers() {
+    /usr/bin/docker container ls --all --format "{{json .}}" |
+        jq --raw-output .ID |
+        xargs --no-run-if-empty -n 1 -P0 docker container rm
+}
+
+function cleanall() {
+    /usr/bin/docker system prune --force > /dev/null
+    clean_images
+    clean_containers
+}
+
+function have_jq() {
+    jq --help > /dev/null 2>/dev/null
+}
+
+if cmd_supports_json $@ && ! cmd_uses_format $@
+then
+    WORKFILE=$(mktemp)
+    if /usr/bin/docker $@ --format "{{json .}}" > $WORKFILE
+    then
+        if have_jq
+        then
+            cat $WORKFILE | jq .
+        else
+            cat $WORKFILE | python -c "
+import json
+import sys
+for iline in sys.stdin:
+    print json.dumps(json.loads(iline), indent=4, sort_keys=True)"
+        fi
+    fi
+else
+    case $1 in
+        stopall|killall)
+            stopall
+            ;;
+        cleanall|rmall)
+            cleanall
+            ;;
+        *)
+            /usr/bin/docker $@
+            ;;
+    esac
+fi

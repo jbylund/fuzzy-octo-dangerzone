@@ -1,0 +1,21 @@
+#!/usr/bin/python
+import argparse
+import sys
+from urllib import quote_plus
+
+
+def read_stdin_or_first_arg():
+    if len(sys.argv) > 1:
+        return sys.argv[1]
+    else:
+        return sys.stdin.read().strip()
+
+    
+def main():
+    argparse.ArgumentParser(description='urlencode some text').parse_known_args()
+    to_encode = read_stdin_or_first_arg()
+    print quote_plus(to_encode)
+
+    
+if "__main__" == __name__:
+    main()

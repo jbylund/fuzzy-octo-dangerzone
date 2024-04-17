@@ -1,2 +1,4 @@
 #!/bin/bash
-find ~/.history -type f -mtime -2 | xargs --no-run-if-empty ls -tr | xargs --no-run-if-empty tail --quiet -n 1
+find ~/.history -type f -mtime -2 |
+  xargs --no-run-if-empty ls -tr |
+  xargs --no-run-if-empty tail --quiet -n 1

@@ -1,6 +1,0 @@
-#!/usr/bin/python
-import sys, urllib as ul
-if len(sys.argv) > 1:
-  print ul.unquote_plus(" ".join(sys.argv[1:]))
-else:
-  print ul.unquote_plus(sys.stdin.read().strip())
